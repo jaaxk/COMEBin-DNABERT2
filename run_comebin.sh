@@ -119,7 +119,8 @@ if [ -d "$folder" ]; then
         echo "Running data augmentation."
         python main.py generate_aug_data --contig_file ${contig_file} \
         --out_augdata_path ${output_dir}/data_augmentation \
-        --n_views ${n_views} --bam_file_path ${bam_file_path} --num_threads ${num_threads}
+        --n_views ${n_views} --bam_file_path ${bam_file_path} --num_threads ${num_threads} \
+        --dnabert_embeddings
     else
         echo "No need to run data augmentation."
     fi
@@ -128,7 +129,8 @@ else
     echo "Running data augmentation."
     python main.py generate_aug_data --contig_file ${contig_file} \
     --out_augdata_path ${output_dir}/data_augmentation \
-    --n_views ${n_views} --bam_file_path ${bam_file_path} --num_threads ${num_threads}
+    --n_views ${n_views} --bam_file_path ${bam_file_path} --num_threads ${num_threads} \
+    --dnabert_embeddings
 fi
 
 if [[ $? -ne 0 ]] ; then echo "Something went wrong with running generating augmentation data. Exiting.";exit 1; fi

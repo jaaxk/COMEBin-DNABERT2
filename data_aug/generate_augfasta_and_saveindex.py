@@ -107,6 +107,8 @@ def run_gen_augfasta(logger, args):
     shutil.copyfile(fasta_file, out_file)
 
     from .gen_kmer import run_gen_kmer
+    from .gen_llm import run_gen_dnabert
+    run_gen_dnabert(out_file, args.model_path)
     run_gen_kmer(out_file, 0, 4)
 
     for i in range(num_aug):
@@ -118,4 +120,7 @@ def run_gen_augfasta(logger, args):
 
         out_file = outdir + '/sequences_aug' + str(i + 1) + '.fasta'
         gen_augfasta(seqs, 'aug' + str(i + 1), out_file, p=p, contig_len=contig_len)
-        run_gen_kmer(out_file, 0, 4)
+        if args.dnabert_embeddings:
+            run_gen_dnabert(out_file, args.model_path) #Pass in path to fasta for current iteration's contigs
+        else:
+            run_gen_kmer(out_file, 0, 4)

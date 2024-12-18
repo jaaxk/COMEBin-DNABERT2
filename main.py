@@ -199,6 +199,9 @@ def arguments():
                                        help='mininum contig length for augmentation')
     generate_aug_data_subparsers.add_argument('--num_threads', default=10, type=int,
                                               help='num_threads for generating augmentation data.')
+    generate_aug_data_subparsers.add_argument('--dnabert_embeddings', action='store_true', help='Use DNABERT2 embeddings instead of TNF')
+    generate_aug_data_subparsers.add_argument('--model_path', default=None, type=str,
+                                              help='Path to pretrained/finetuned model, leave blank to download from HuggingFace')
 
     #############################################################################################
     ############################################ cluster #####################################
@@ -344,12 +347,15 @@ def main():
     ##### generate_aug_data fastafile
     if args.subcmd == 'generate_aug_data':
         logger.info('generate_aug_data: fastafile')
+        if args.dnabert_embeddings:
+            args.nokmer = True
+            print('Using DNABERT2 embeddings instead of TNF')
 
         from data_aug.generate_augfasta_and_saveindex import run_gen_augfasta
         from data_aug.gen_cov import run_gen_cov
         from data_aug.gen_var import run_gen_cov_var
 
-        run_gen_augfasta(logger, args)
+        run_gen_augfasta(logger, args) #Modifying this function
         run_gen_cov(logger, args)
         run_gen_cov_var(logger, args)
 
