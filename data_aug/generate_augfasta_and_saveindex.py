@@ -106,10 +106,15 @@ def run_gen_augfasta(logger, args):
     out_file = outdir + '/sequences_aug0.fasta'
     shutil.copyfile(fasta_file, out_file)
 
-    from .gen_kmer import run_gen_kmer
-    from .gen_llm import run_gen_dnabert
-    run_gen_dnabert(out_file, args.model_path)
-    run_gen_kmer(out_file, 0, 4)
+    if args.model_name == 'TNF':
+        from .gen_kmer import run_gen_kmer
+        run_gen_kmer(out_file, 0, 4)
+    elif args.model_name == 'dnabert2':
+        from .gen_llm import run_gen_dnabert
+        run_gen_dnabert(out_file, args.llm_model_path)
+    else:
+        raise ValueError(f'Cant find model: {args.model_name}. Acceptable inputs: TNF, dnabert2')
+    
 
     for i in range(num_aug):
         outdir = out_path + '/aug' + str(i + 1)
@@ -120,7 +125,8 @@ def run_gen_augfasta(logger, args):
 
         out_file = outdir + '/sequences_aug' + str(i + 1) + '.fasta'
         gen_augfasta(seqs, 'aug' + str(i + 1), out_file, p=p, contig_len=contig_len)
-        if args.dnabert_embeddings:
+        if args.model_name == 'dnabert2':
             run_gen_dnabert(out_file, args.model_path) #Pass in path to fasta for current iteration's contigs
-        else:
+        elif args.model_name == 'TNF':
             run_gen_kmer(out_file, 0, 4)
+            

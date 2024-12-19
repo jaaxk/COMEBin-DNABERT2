@@ -199,9 +199,10 @@ def arguments():
                                        help='mininum contig length for augmentation')
     generate_aug_data_subparsers.add_argument('--num_threads', default=10, type=int,
                                               help='num_threads for generating augmentation data.')
-    generate_aug_data_subparsers.add_argument('--dnabert_embeddings', action='store_true', help='Use DNABERT2 embeddings instead of TNF')
-    generate_aug_data_subparsers.add_argument('--model_path', default=None, type=str,
-                                              help='Path to pretrained/finetuned model, leave blank to download from HuggingFace')
+    generate_aug_data_subparsers.add_argument('--model_name', default='dnabert2', type=str,
+                                              help='Which model to use for feature embeddings. Options: TNF (original paper), dnabert2 (default), dnabert-virus (in progress)')
+    generate_aug_data_subparsers.add_argument('--llm_model_path', default=None, type=str,
+                                              help='Path to specific pretrained model. Default downloads model_name from HuggingFace')
 
     #############################################################################################
     ############################################ cluster #####################################
@@ -347,9 +348,11 @@ def main():
     ##### generate_aug_data fastafile
     if args.subcmd == 'generate_aug_data':
         logger.info('generate_aug_data: fastafile')
-        if args.dnabert_embeddings:
+        if args.model_name != 'TNF':
             args.nokmer = True
-            print('Using DNABERT2 embeddings instead of TNF')
+            print(f'Using {args.model_name} embeddings instead of TNF')
+        else:
+            print('Using TNF features')
 
         from data_aug.generate_augfasta_and_saveindex import run_gen_augfasta
         from data_aug.gen_cov import run_gen_cov
