@@ -111,7 +111,7 @@ def run_gen_augfasta(logger, args):
         run_gen_kmer(out_file, 0, 4)
     elif args.model_name == 'dnabert2':
         from .gen_llm import run_gen_dnabert
-        run_gen_dnabert(out_file, args.llm_model_path)
+        run_gen_dnabert(out_file, args)
     else:
         raise ValueError(f'Cant find model: {args.model_name}. Acceptable inputs: TNF, dnabert2')
     
@@ -126,7 +126,7 @@ def run_gen_augfasta(logger, args):
         out_file = outdir + '/sequences_aug' + str(i + 1) + '.fasta'
         gen_augfasta(seqs, 'aug' + str(i + 1), out_file, p=p, contig_len=contig_len)
         if args.model_name == 'dnabert2':
-            run_gen_dnabert(out_file, args.model_path) #Pass in path to fasta for current iteration's contigs
+            run_gen_dnabert(out_file, args) #Pass in path to fasta for current iteration's contigs
         elif args.model_name == 'TNF':
             run_gen_kmer(out_file, 0, 4)
             

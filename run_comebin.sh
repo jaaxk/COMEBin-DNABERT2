@@ -20,6 +20,7 @@ help_message () {
 	echo "  -t INT          number of threads (default=5)"
 	echo "  -l FLOAT        temperature in loss function (default=0.07 for assemblies with an N50 > 10000, default=0.15 for others)"
 	echo "  -e INT          embedding size for comebin network (default=2048)"
+  echo "  -m STR          model name: TNF, dnabert2, etc"
 	echo "  -c INT          embedding size for coverage network (default=2048)"
 	echo "  -b INT          batch size for training process (default=1024)"
 	echo "";}
@@ -51,6 +52,8 @@ while getopts a:o:p:n:t:l:e:c:b: OPT; do
   l) temperature=${OPTARG}
     ;;
   e) emb_szs=${OPTARG}
+    ;;
+  m) model_name=${OPTARG}
     ;;
   c) emb_szs_forcov=${OPTARG}
     ;;
@@ -119,8 +122,7 @@ if [ -d "$folder" ]; then
         echo "Running data augmentation."
         python main.py generate_aug_data --contig_file ${contig_file} \
         --out_augdata_path ${output_dir}/data_augmentation \
-        --n_views ${n_views} --bam_file_path ${bam_file_path} --num_threads ${num_threads} \
-        --dnabert_embeddings
+        --n_views ${n_views} --bam_file_path ${bam_file_path} --num_threads ${num_threads} 
     else
         echo "No need to run data augmentation."
     fi
@@ -129,8 +131,7 @@ else
     echo "Running data augmentation."
     python main.py generate_aug_data --contig_file ${contig_file} \
     --out_augdata_path ${output_dir}/data_augmentation \
-    --n_views ${n_views} --bam_file_path ${bam_file_path} --num_threads ${num_threads} \
-    --dnabert_embeddings
+    --n_views ${n_views} --bam_file_path ${bam_file_path} --num_threads ${num_threads} 
 fi
 
 if [[ $? -ne 0 ]] ; then echo "Something went wrong with running generating augmentation data. Exiting.";exit 1; fi

@@ -35,7 +35,7 @@ def train_CLmodel(logger, args):
         logger.info("The embeddings file has been generated before, please check the output commands.")
         sys.exit()
 
-    dataset, namelist = get_ContrastiveLearningDataset(args.data, args.n_views,
+    dataset, namelist = get_ContrastiveLearningDataset(args, args.data, args.n_views,
                                                        args.kmer_model_path, args.device, args.nokmer, args.cov_meannormalize,
                                                        args.cov_minmaxnormalize, args.cov_standardization,args.addvars,args.vars_sqrt, args.kmer_l2_normalize, args.kmerMetric_notl2normalize)
 

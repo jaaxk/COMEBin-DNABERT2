@@ -4,7 +4,7 @@ import torch
 from utils import get_kmerMetric_emb
 from sklearn.preprocessing import normalize
 
-def get_kmer_coverage(data_path: str, n_views: int = 2, kmer_model_path: str = 'empty',
+def get_kmer_coverage(args, data_path: str, n_views: int = 2, kmer_model_path: str = 'empty',
                       device = torch.device('cpu'), nokmer: bool = False, cov_meannormalize: bool = False,
                       cov_minmaxnormalize: bool = False, cov_standardization: bool = False, addvars: bool = False,
                       vars_sqrt: bool = False, kmer_l2_normalize: bool = False, kmerMetric_notl2normalize: bool = False):
@@ -31,8 +31,10 @@ def get_kmer_coverage(data_path: str, n_views: int = 2, kmer_model_path: str = '
     mapObj = dict(zip(namelist, range(len(namelist))))
     for view in range(n_views):
         cov_file = data_path + 'aug' + str(view) + '_datacoverage_mean.tsv'
-        if not nokmer:
+        if args.model_name=='TNF':
             com_file = data_path + 'aug' + str(view) + '/kmer_4_f0.csv'
+        elif args.model_name=='dnabert2':
+            com_file = data_path + 'aug' + str(view) + '/dnabert2_embeddings.csv'
 
         covHeader = pd.read_csv(cov_file, sep='\t', nrows=1)
         shuffled_covMat = pd.read_csv(cov_file, sep='\t', usecols=range(1, covHeader.shape[1])).values
@@ -45,7 +47,7 @@ def get_kmer_coverage(data_path: str, n_views: int = 2, kmer_model_path: str = '
         covMat = shuffled_covMat[covIdxArr]
 
 
-        if not nokmer:
+        if not nokmer or args.model_name=='dnabert2':
             compositHeader = pd.read_csv(com_file, sep=',', nrows=1)
             shuffled_compositMat = pd.read_csv(com_file, sep=',', usecols=range(1, compositHeader.shape[1])).values
             shuffled_namelist = pd.read_csv(com_file, sep=',', usecols=range(1)).values[:, 0]
@@ -109,7 +111,7 @@ def get_kmer_coverage(data_path: str, n_views: int = 2, kmer_model_path: str = '
         if addvars:
             varsMats = varsMats / varsMats.max(axis=0)[None, :]
 
-    if not nokmer:
+    if not nokmer or args.model_name=='dnabert2':
         compositMats = compositMats + 1
         compositMats = compositMats / compositMats.sum(axis=1)[:, None]
         if kmer_l2_normalize:
@@ -117,7 +119,7 @@ def get_kmer_coverage(data_path: str, n_views: int = 2, kmer_model_path: str = '
         if kmer_model_path != 'empty':
             compositMats = get_kmerMetric_emb(kmer_model_path, compositMats, device,kmerMetric_notl2normalize)
 
-    if not nokmer:
+    if not nokmer or args.model_name=='dnabert2':
         X_ts = np.hstack((covMats, compositMats))
     else:
         X_ts = covMats
@@ -128,7 +130,7 @@ def get_kmer_coverage(data_path: str, n_views: int = 2, kmer_model_path: str = '
     return list(torch.split(torch.from_numpy(X_ts).float(), len(namelist))), namelist
 
 
-def get_ContrastiveLearningDataset(data_path: str, n_views: int = 2, kmer_model_path: str = 'empty',
+def get_ContrastiveLearningDataset(args, data_path: str, n_views: int = 2, kmer_model_path: str = 'empty',
                                    device=torch.device('cpu'), nokmer: bool = False, cov_meannormalize: bool = False,
                                    cov_minmaxnormalize: bool = False, cov_standardization: bool = False, addvars: bool = False,
                                    vars_sqrt: bool = False, kmer_l2_normalize: bool = False, kmerMetric_notl2normalize: bool = False):
@@ -152,5 +154,5 @@ def get_ContrastiveLearningDataset(data_path: str, n_views: int = 2, kmer_model_
     """
     if not data_path.endswith('/'):
         data_path = data_path + '/'
-    dataset, namelist = get_kmer_coverage(data_path, n_views, kmer_model_path, device, nokmer, cov_meannormalize, cov_minmaxnormalize, cov_standardization,addvars,vars_sqrt,kmer_l2_normalize,kmerMetric_notl2normalize)
+    dataset, namelist = get_kmer_coverage(args, data_path, n_views, kmer_model_path, device, nokmer, cov_meannormalize, cov_minmaxnormalize, cov_standardization,addvars,vars_sqrt,kmer_l2_normalize,kmerMetric_notl2normalize)
     return dataset, namelist
