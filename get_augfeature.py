@@ -41,6 +41,7 @@ def get_kmer_coverage(args, data_path: str, n_views: int = 2, kmer_model_path: s
         shuffled_namelist = pd.read_csv(cov_file, sep='\t', usecols=range(1)).values[:, 0]
 
         covIdxArr = np.empty(len(mapObj), dtype=np.int)
+
         for contigIdx in range(len(shuffled_namelist)):
             if shuffled_namelist[contigIdx].split('_aug')[0] in mapObj:
                 covIdxArr[mapObj[shuffled_namelist[contigIdx].split('_aug')[0]]] = contigIdx
@@ -53,9 +54,11 @@ def get_kmer_coverage(args, data_path: str, n_views: int = 2, kmer_model_path: s
             shuffled_namelist = pd.read_csv(com_file, sep=',', usecols=range(1)).values[:, 0]
 
             covIdxArr = np.empty(len(mapObj), dtype=np.int)
+
             for contigIdx in range(len(shuffled_namelist)):
                 if shuffled_namelist[contigIdx].split('_aug')[0] in mapObj:
                     covIdxArr[mapObj[shuffled_namelist[contigIdx].split('_aug')[0]]] = contigIdx
+
             compositMat = shuffled_compositMat[covIdxArr]
 
         if addvars:
@@ -75,14 +78,14 @@ def get_kmer_coverage(args, data_path: str, n_views: int = 2, kmer_model_path: s
             covMats = covMat
             if addvars:
                 varsMats = varsMat
-            if not nokmer:
+            if not nokmer or args.model_name=='dnabert2':
                 compositMats = compositMat
 
         else:
             covMats = np.vstack((covMats, covMat))
             if addvars:
                 varsMats = np.vstack((varsMats, varsMat))
-            if not nokmer:
+            if not nokmer or args.model_name=='dnabert2':
                 compositMats = np.vstack((compositMats, compositMat))
 
     # use cov_maxnormalize
