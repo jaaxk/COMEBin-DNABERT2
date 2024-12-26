@@ -184,5 +184,8 @@ python main.py get_result --contig_file ${contig_file} \
 --output_path ${output_dir}/comebin_res \
 --seed_file ${seed_file} --num_threads ${num_threads}
 
+python main.py to_cami_format --output_dir ${output_dir} \
+--output_name ${contig_file}
+
 if [[ $? -ne 0 ]] ; then echo "Something went wrong with running clustering. Exiting.";exit 1; fi
 

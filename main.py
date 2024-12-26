@@ -255,6 +255,10 @@ def arguments():
     get_result_subparsers.add_argument('--bac_mg_table', type=str, help=("bac_mg_table (bacteria marker gene information)"))
     get_result_subparsers.add_argument('--ar_mg_table', type=str, help=("ar_mg_table (archea marker gene information)"))
 
+    get_cami_format_subparsers = subparsers.add_parser('to_cami_format', help='Generate .binning file for CAMI2 evaluation')
+    get_cami_format_subparsers.add_argument('--output_dir', help='directory where model output was stored')
+    get_cami_format_subparsers.add_argument('--output_name', help = '.binning file name')
+
     args = parser.parse_args()
     return args
 
@@ -378,6 +382,12 @@ def main():
         seed_num = gen_seed(logger, args.contig_file, num_threads, args.contig_len, marker_name="bacar_marker", quarter="2quarter")
 
         run_get_final_result(logger, args, seed_num, num_threads, ignore_kmeans_res=True)
+
+    ###Turn final results into format for CAMI2 evaluation
+    if args.subcmd == 'to_cami_format':
+        print('To CAMI evaluation format (.binning file)')
+        from to_cami_format import to_cami_format
+        to_cami_format(args.output_dir, args.output_name)
 
 
 if __name__ == '__main__':
