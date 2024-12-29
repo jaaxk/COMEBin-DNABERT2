@@ -46,6 +46,7 @@ def run_gen_dnabert(fasta_file, args):
         n_gpu = torch.cuda.device_count()
         if n_gpu > 1:
             model = nn.DataParallel(model)
+            
     else:
         n_gpu = 1
     model.to(device)

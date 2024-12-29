@@ -115,8 +115,9 @@ def run_gen_augfasta(logger, args):
     else:
         raise ValueError(f'Cant find model: {args.model_name}. Acceptable inputs: TNF, dnabert2')
     
-
+    print('Number of augmentations: ' + str(num_aug))
     for i in range(num_aug):
+        print('Getting augmentations for aug ' + str(num_aug+1))
         outdir = out_path + '/aug' + str(i + 1)
         os.makedirs(outdir)
         logger.info("aug:\t" + str(i+1))
