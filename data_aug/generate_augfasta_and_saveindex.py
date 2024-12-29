@@ -102,32 +102,42 @@ def run_gen_augfasta(logger, args):
     contig_len = args.contig_len
 
     outdir = out_path + '/aug0'
-    os.makedirs(outdir)
-    out_file = outdir + '/sequences_aug0.fasta'
-    shutil.copyfile(fasta_file, out_file)
+    if not os.path.exists(outdir):
+        print(f'{outdir} does not exist, running generate embeddings')
+        os.makedirs(outdir)
+        out_file = outdir + '/sequences_aug0.fasta'
+        shutil.copyfile(fasta_file, out_file)
 
-    if args.model_name == 'TNF':
-        from .gen_kmer import run_gen_kmer
-        run_gen_kmer(out_file, 0, 4)
-    elif args.model_name == 'dnabert2':
-        from .gen_llm import run_gen_dnabert
-        run_gen_dnabert(out_file, args)
+        if args.model_name == 'TNF':
+            from .gen_kmer import run_gen_kmer
+            run_gen_kmer(out_file, 0, 4)
+        elif args.model_name == 'dnabert2':
+            from .gen_llm import run_gen_dnabert
+            run_gen_dnabert(out_file, args)
+        else:
+            raise ValueError(f'Cant find model: {args.model_name}. Acceptable inputs: TNF, dnabert2')
+        
     else:
-        raise ValueError(f'Cant find model: {args.model_name}. Acceptable inputs: TNF, dnabert2')
+        print(f'{outdir} already exists, skipping this step.')
     
     print('Number of augmentations: ' + str(num_aug))
     for i in range(num_aug):
         print('Getting augmentations for aug ' + str(num_aug+1))
         outdir = out_path + '/aug' + str(i + 1)
-        os.makedirs(outdir)
-        logger.info("aug:\t" + str(i+1))
-        p = None
-        seqs = get_inputsequences(fasta_file)
+        if not os.path.exists(outdir):
+            print(f'{outdir} does not exist, running generate embeddings')
+            os.makedirs(outdir)
+            logger.info("aug:\t" + str(i+1))
+            p = None
+            seqs = get_inputsequences(fasta_file)
 
-        out_file = outdir + '/sequences_aug' + str(i + 1) + '.fasta'
-        gen_augfasta(seqs, 'aug' + str(i + 1), out_file, p=p, contig_len=contig_len)
-        if args.model_name == 'dnabert2':
-            run_gen_dnabert(out_file, args) #Pass in path to fasta for current iteration's contigs
-        elif args.model_name == 'TNF':
-            run_gen_kmer(out_file, 0, 4)
+            out_file = outdir + '/sequences_aug' + str(i + 1) + '.fasta'
+            gen_augfasta(seqs, 'aug' + str(i + 1), out_file, p=p, contig_len=contig_len)
+            if args.model_name == 'dnabert2':
+                run_gen_dnabert(out_file, args) #Pass in path to fasta for current iteration's contigs
+            elif args.model_name == 'TNF':
+                run_gen_kmer(out_file, 0, 4)
+
+        else:
+            print(f'{outdir} already exists, skipping this step.')
             
