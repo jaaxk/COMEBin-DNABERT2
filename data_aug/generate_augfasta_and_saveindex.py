@@ -122,7 +122,7 @@ def run_gen_augfasta(logger, args):
     
     print('Number of augmentations: ' + str(num_aug))
     for i in range(num_aug):
-        print('Getting augmentations for aug ' + str(num_aug+1))
+        print('Getting augmentations for aug ' + str(i+1))
         outdir = out_path + '/aug' + str(i + 1)
         if not os.path.exists(outdir):
             print(f'{outdir} does not exist, running generate embeddings')

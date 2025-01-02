@@ -21,11 +21,13 @@ def run_gen_dnabert(fasta_file, args):
         model_name_or_path = args.llm_model_path
 
     model = AutoModel.from_pretrained(model_name_or_path, trust_remote_code=True)
-    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path,
-                                                model_max_length = args.model_max_length,
-                                                padding_side = 'right',
-                                                use_fast = True, #Look into this
-                                                trust_remote_code=True)
+    def init_tokenizer(worker_id):
+        global tokenizer
+        tokenizer = AutoTokenizer.from_pretrained(model_name_or_path,
+                                                    model_max_length = args.model_max_length,
+                                                    padding_side = 'right',
+                                                    use_fast = True, #Look into this
+                                                    trust_remote_code=True)
 
     dna_sequences = []
     contig_ids = []
@@ -51,7 +53,9 @@ def run_gen_dnabert(fasta_file, args):
         n_gpu = 1
     model.to(device)
 
-    train_loader = util_data.DataLoader(dna_sequences, batch_size=args.llm_batch_size*n_gpu, shuffle=False, num_workers=2*n_gpu)
+    train_loader = util_data.DataLoader(dna_sequences, batch_size=args.llm_batch_size*n_gpu, 
+                                        shuffle=False, num_workers=2*n_gpu, 
+                                        worker_init_fn=init_tokenizer)
     for j, batch in enumerate(tqdm(train_loader, desc='Generating embeddings')):
         with torch.no_grad():
             token_feat = tokenizer.batch_encode_plus(
