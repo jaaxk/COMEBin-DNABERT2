@@ -21,13 +21,19 @@ def run_gen_dnabert(fasta_file, args):
         model_name_or_path = args.llm_model_path
 
     model = AutoModel.from_pretrained(model_name_or_path, trust_remote_code=True)
-    def init_tokenizer(worker_id):
-        global tokenizer
-        tokenizer = AutoTokenizer.from_pretrained(model_name_or_path,
+    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path,
                                                     model_max_length = args.model_max_length,
                                                     padding_side = 'right',
                                                     use_fast = True, #Look into this
                                                     trust_remote_code=True)
+    def init_tokenizer(worker_id):
+        global tokenizer
+        if 'tokenizer' not in globals():
+            tokenizer = AutoTokenizer.from_pretrained(model_name_or_path,
+                                                        model_max_length = args.model_max_length,
+                                                        padding_side = 'right',
+                                                        use_fast = True, #Look into this
+                                                        trust_remote_code=True)
 
     dna_sequences = []
     contig_ids = []
