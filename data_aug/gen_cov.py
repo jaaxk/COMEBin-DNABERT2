@@ -113,7 +113,8 @@ def calculate_coverage_samplebyindex(depth_file: str, augpredix: str, aug_seq_in
     """
     contigs = []
     mean_coverage = []
-
+    print('calculate_coverage_samplebyindex')
+    print(f'depth file: {depth_file}')
     for contig_name, lines in groupby(open(depth_file), lambda ell: ell.split('\t', 1)[0]):
         depth_value = []
         for line in lines:
@@ -138,6 +139,9 @@ def calculate_coverage_samplebyindex(depth_file: str, augpredix: str, aug_seq_in
     contig_cov = pd.DataFrame(
         {'{0}_cov'.format(depth_file): mean_coverage,
          }, index=contigs)
+
+    print(f'augpredix: {augpredix}')
+    print(depth_file + '_' + augpredix + '_data_cov.csv')
 
     with atomic_write(depth_file + '_' + augpredix + '_data_cov.csv', overwrite=True) as ofile:
         contig_cov.to_csv(ofile, sep='\t')
@@ -244,7 +248,9 @@ def gen_cov_from_bedout(logger, out_path: str, depth_file_path: str,
     joined.to_csv(outfile, sep='\t', header=True)
 
     for i in range(num_aug):
+        print(f'aug: {i}')
         outdir = out_path + 'aug' + str(i + 1)
+        print(outdir)
         aug_seq_info_out_file = outdir + '/sequences_aug' + str(i + 1) + '.fasta' + '.aug_seq_info.tsv'
         aug_seq_info_dict = read_aug_seq_info(aug_seq_info_out_file)
 
