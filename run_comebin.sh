@@ -40,7 +40,7 @@ emb_szs_forcov=2048
 emb_szs=2048
 batch_size=1024
 
-while getopts a:o:p:n:t:l:e:c:b: OPT; do
+while getopts a:o:p:n:t:l:e:m:c:b: OPT; do
  case ${OPT} in
   a) contig_file=$(realpath ${OPTARG})
     ;;
