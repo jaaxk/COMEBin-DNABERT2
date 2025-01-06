@@ -5,6 +5,9 @@
 # Author of pipeline: Ziye Wang.
 # For questions, bugs, and suggestions, contact me at zwang17@fudan.edu.cn
 ##############################################################################################################################################################
+
+start_time=$(date +%s)
+
 VERSION="1.0.4"
 
 help_message () {
@@ -212,5 +215,8 @@ filename=$(basename "${contig_file}" .fasta)
 python main.py to_cami_format --output_path ${output_dir} \
 --output_name ${filename}
 
-
+echo "Pipeline complete!"
+end_time=$(date +%s)
+time_taken=$((end_time - start_time))
+echo "Time elapsed: ${time_taken}"
 if [[ $? -ne 0 ]] ; then echo "Something went wrong with running clustering. Exiting.";exit 1; fi
