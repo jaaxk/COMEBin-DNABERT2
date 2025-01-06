@@ -3,7 +3,7 @@ import csv
 
 def to_cami_format(out_dir, out_name):
     infile = os.path.join(out_dir, 'comebin_res/comebin_res.tsv')
-    outfile = os.path.join(out_dir, f'comebin_res/{out_name}.binning')
+    outfile = os.path.join(out_dir, f'cami_format/{out_name}.binning')
     if os.path.exists(outfile):
         os.remove(outfile)
         print(f'{out_name} already exists, deleting it and starting from scratch')

@@ -182,7 +182,7 @@ if [ -d "$folder" ]; then
   count=$(find "$folder" -maxdepth 1 -type f -name "$keyword*" | wc -l)
   echo "Number of files containing '$keyword' in the folder: $count"
 
-  if ["$count" -le 120]; then
+  if [ "$count" -le 120 ]; then
     echo "Running binning"
     python main.py bin --contig_file ${contig_file} \
     --emb_file ${emb_file} \
@@ -190,17 +190,15 @@ if [ -d "$folder" ]; then
     --seed_file ${seed_file} --num_threads ${num_threads}
   fi
 
-  if [! -f "${output_dir}/comebin_res/comebin_res.tsv" ]; then
+  if [ ! -f "${output_dir}/comebin_res/comebin_res.tsv" ]; then
     echo "comebin_res.tsv does not exist, running get final result"
     python main.py get_result --contig_file ${contig_file} \
     --output_path ${output_dir}/comebin_res \
     --seed_file ${seed_file} --num_threads ${num_threads}
   fi
 
-  python main.py to_cami_format --output_dir ${output_dir} \
+  python main.py to_cami_format --output_path ${output_dir} \
   --output_name ${contig_file} \
-  --output_path ${output_dir}/cami_format
-
 fi
 
 
