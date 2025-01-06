@@ -125,6 +125,7 @@ if [ -d "$folder" ]; then
         echo "Running data augmentation."
         python main.py generate_aug_data --contig_file ${contig_file} \
         --out_augdata_path ${output_dir}/data_augmentation \
+        --model_name ${model_name} \
         --n_views ${n_views} --bam_file_path ${bam_file_path} --num_threads ${num_threads} 
     else
         echo "No need to run data augmentation."
@@ -134,6 +135,7 @@ else
     echo "Running data augmentation."
     python main.py generate_aug_data --contig_file ${contig_file} \
     --out_augdata_path ${output_dir}/data_augmentation \
+    --model_name ${model_name} \
     --n_views ${n_views} --bam_file_path ${bam_file_path} --num_threads ${num_threads} 
 fi
 
@@ -154,6 +156,7 @@ if [ -d "$folder" ]; then
         python main.py train --data ${output_dir}/data_augmentation \
         --temperature ${temperature} --emb_szs_forcov ${emb_szs_forcov} \
         --batch_size ${batch_size} --emb_szs ${emb_szs} --n_views ${n_views} \
+        --model_name ${model_name} \
         --add_model_for_coverage \
         --output_path ${output_dir}/comebin_res --earlystop --addvars --vars_sqrt --num_threads ${num_threads}
     else
@@ -165,6 +168,7 @@ else
     python main.py train --data ${output_dir}/data_augmentation \
     --temperature ${temperature} --emb_szs_forcov ${emb_szs_forcov} \
     --batch_size ${batch_size} --emb_szs ${emb_szs} --n_views ${n_views} \
+    --model_name ${model_name} \
     --add_model_for_coverage \
     --output_path ${output_dir}/comebin_res --earlystop --addvars --vars_sqrt --num_threads ${num_threads}
 fi
