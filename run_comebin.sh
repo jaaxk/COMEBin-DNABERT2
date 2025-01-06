@@ -175,18 +175,34 @@ if [[ $? -ne 0 ]] ; then echo "Something went wrong with running training networ
 emb_file=${output_dir}/comebin_res/embeddings.tsv
 seed_file=${contig_file}.bacar_marker.2quarter_lencutoff_1001.seed
 
-python main.py bin --contig_file ${contig_file} \
---emb_file ${emb_file} \
---output_path ${output_dir}/comebin_res \
---seed_file ${seed_file} --num_threads ${num_threads}
+folder=${output_dir}/comebin_res/cluster_res
+keyword="Leiden"
+if [ -d "$folder" ]; then
+  echo "${output_dir}/comebin_res exists."
+  count=$(find "$folder" -maxdepth 1 -type f -name "$keyword*" | wc -l)
+  echo "Number of files containing '$keyword' in the folder: $count"
 
-python main.py get_result --contig_file ${contig_file} \
---output_path ${output_dir}/comebin_res \
---seed_file ${seed_file} --num_threads ${num_threads}
+  if ["$count" -le 120]; then
+    echo "Running binning"
+    python main.py bin --contig_file ${contig_file} \
+    --emb_file ${emb_file} \
+    --output_path ${output_dir}/comebin_res \
+    --seed_file ${seed_file} --num_threads ${num_threads}
+  fi
 
-python main.py to_cami_format --output_dir ${output_dir} \
---output_name ${contig_file} \
---output_path ${output_dir}/cami_format
+  if [! -f "${output_dir}/comebin_res/comebin_res.tsv" ]
+    echo "comebin_res.tsv does not exist, running get final result"
+    python main.py get_result --contig_file ${contig_file} \
+    --output_path ${output_dir}/comebin_res \
+    --seed_file ${seed_file} --num_threads ${num_threads}
+  fi
+
+  python main.py to_cami_format --output_dir ${output_dir} \
+  --output_name ${contig_file} \
+  --output_path ${output_dir}/cami_format
+
+fi
+
 
 if [[ $? -ne 0 ]] ; then echo "Something went wrong with running clustering. Exiting.";exit 1; fi
 
