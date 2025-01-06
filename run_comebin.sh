@@ -190,7 +190,7 @@ if [ -d "$folder" ]; then
     --seed_file ${seed_file} --num_threads ${num_threads}
   fi
 
-  if [! -f "${output_dir}/comebin_res/comebin_res.tsv" ]
+  if [! -f "${output_dir}/comebin_res/comebin_res.tsv" ]; then
     echo "comebin_res.tsv does not exist, running get final result"
     python main.py get_result --contig_file ${contig_file} \
     --output_path ${output_dir}/comebin_res \
