@@ -208,7 +208,7 @@ if [ ! -f "${output_dir}/comebin_res/comebin_res.tsv" ]; then
   --seed_file ${seed_file} --num_threads ${num_threads}
 fi
 
-filename=$(basename "${contig_file}" -s .fasta)
+filename=$(basename "${contig_file}" .fasta)
 python main.py to_cami_format --output_path ${output_dir} \
 --output_name ${filename}
 
