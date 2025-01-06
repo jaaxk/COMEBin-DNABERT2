@@ -208,8 +208,9 @@ if [ ! -f "${output_dir}/comebin_res/comebin_res.tsv" ]; then
   --seed_file ${seed_file} --num_threads ${num_threads}
 fi
 
+filename=$(basename "${contig_file}" -s .fasta)
 python main.py to_cami_format --output_path ${output_dir} \
---output_name ${contig_file}
+--output_name ${filename}
 
 
 if [[ $? -ne 0 ]] ; then echo "Something went wrong with running clustering. Exiting.";exit 1; fi
