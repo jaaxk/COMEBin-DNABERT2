@@ -7,6 +7,7 @@ import time
 import os
 import scipy.sparse as sp
 import logging
+import gc
 
 from igraph import Graph
 from sklearn.preprocessing import normalize
@@ -254,13 +255,11 @@ def run_leiden(output_file: str, namelist: List[str],
 
     :return: None
     """
-
     sources = np.repeat(np.arange(len(norm_embeddings)), max_edges)
     targets_indices = ann_neighbor_indices[:,1:]
     targets = targets_indices.flatten()
     wei = ann_distances[:,1:]
     wei = wei.flatten()
-
     dist_cutoff = np.percentile(wei, partgraph_ratio)
     save_index = wei <= dist_cutoff
 
@@ -282,11 +281,9 @@ def run_leiden(output_file: str, namelist: List[str],
     vcount = len(norm_embeddings)
     edgelist = list(zip(sources, targets))
     g = Graph(vcount, edgelist)
-
     res = leidenalg.RBERVertexPartition(g,
                                         weights=wei, initial_membership = initial_list,
                                         resolution_parameter = resolution_parameter,node_sizes=length_weight)
-
     optimiser = leidenalg.Optimiser()
     optimiser.optimise_partition(res, is_membership_fixed=is_membership_fixed,n_iterations=-1)
 
@@ -401,17 +398,20 @@ def cluster(logger, args, prefix=None):
         logger.info('knn query time cost:\t' +str(time_end - time_start) + "s")
 
 
-        with multiprocessing.Pool(num_workers) as multiprocess:
+        with multiprocessing.Pool(num_workers/2) as multiprocess: #Using half the workers here to allocate more memory to each worker. Necessary for larger datasets (like CAMI2)
             for partgraph_ratio in partgraph_ratio_list:
                 for bandwidth in bandwidth_list:
                     for para in parameter_list:
                         output_file = output_path + 'Leiden_bandwidth_' + str(
                             bandwidth) + '_res_maxedges' + str(max_edges) + 'respara_'+str(para)+'_partgraph_ratio_'+str(partgraph_ratio)+'.tsv'
-
                         if not (os.path.exists(output_file)):
+                            print(output_file + ' doesnt exist, running Leiden')
                             multiprocess.apply_async(run_leiden, (output_file, namelist, ann_neighbor_indices, ann_distances, length_weight, max_edges, norm_embeddings,
                                                                         bandwidth, 'l2', initial_list,is_membership_fixed,
                                                                         para, partgraph_ratio))
+                            gc.collect()
+                        else:
+                            print(output_file + ' exists, skipping')
 
             multiprocess.close()
             multiprocess.join()
