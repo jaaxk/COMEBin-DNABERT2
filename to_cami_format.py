@@ -8,6 +8,8 @@ def to_cami_format(out_dir, out_name):
         os.remove(outfile)
         print(f'{out_name} already exists, deleting it and starting from scratch')
 
+    os.makedirs(os.path.dirname(outfile), exist_ok=True)
+
     if 'marmg' in out_name:
         sampleid = 'marmgCAMI2_short_read_pooled_gold_standard_assembly'
     elif 'rhimg' in out_name:
