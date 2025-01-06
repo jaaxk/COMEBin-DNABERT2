@@ -25,6 +25,7 @@ def train_CLmodel(logger, args):
         args.device = torch.device('cuda')
         cudnn.deterministic = True
         cudnn.benchmark = True
+        print('Training using CUDA')
     else:
         args.device = torch.device('cpu')
         torch.set_num_threads(args.num_threads)
