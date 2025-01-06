@@ -188,19 +188,28 @@ if [ -d "$folder" ]; then
     --emb_file ${emb_file} \
     --output_path ${output_dir}/comebin_res \
     --seed_file ${seed_file} --num_threads ${num_threads}
+  else
+    echo "No need to run binning"
   fi
 
-  if [ ! -f "${output_dir}/comebin_res/comebin_res.tsv" ]; then
-    echo "comebin_res.tsv does not exist, running get final result"
-    python main.py get_result --contig_file ${contig_file} \
-    --output_path ${output_dir}/comebin_res \
-    --seed_file ${seed_file} --num_threads ${num_threads}
-  fi
+else
 
-  python main.py to_cami_format --output_path ${output_dir} \
-  --output_name ${contig_file} \
+  echo "Running binning"
+  python main.py bin --contig_file ${contig_file} \
+  --emb_file ${emb_file} \
+  --output_path ${output_dir}/comebin_res \
+  --seed_file ${seed_file} --num_threads ${num_threads}
 fi
+
+if [ ! -f "${output_dir}/comebin_res/comebin_res.tsv" ]; then
+  echo "comebin_res.tsv does not exist, running get final result"
+  python main.py get_result --contig_file ${contig_file} \
+  --output_path ${output_dir}/comebin_res \
+  --seed_file ${seed_file} --num_threads ${num_threads}
+fi
+
+python main.py to_cami_format --output_path ${output_dir} \
+--output_name ${contig_file}
 
 
 if [[ $? -ne 0 ]] ; then echo "Something went wrong with running clustering. Exiting.";exit 1; fi
-
