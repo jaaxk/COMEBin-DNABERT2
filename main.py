@@ -202,7 +202,7 @@ def arguments():
     generate_aug_data_subparsers.add_argument('--num_threads', default=10, type=int,
                                               help='num_threads for generating augmentation data.')
     generate_aug_data_subparsers.add_argument('--model_name', default='dnabert2', type=str,
-                                              help='Which model to use for feature embeddings. Options: TNF (original paper), dnabert2 (default), dnabert-virus (in progress)')
+                                              help='Which model to use for feature embeddings. Options: TNF (original paper), dnabert2 (default), dnabert-s')
     generate_aug_data_subparsers.add_argument('--llm_model_path', default=None, type=str,
                                               help='Path to specific pretrained model. Default downloads model_name from HuggingFace')
     generate_aug_data_subparsers.add_argument('--model_max_length', default=400, type=int, help='Max tokens for input to llm')

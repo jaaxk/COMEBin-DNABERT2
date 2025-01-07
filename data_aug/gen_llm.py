@@ -13,10 +13,12 @@ from sklearn.preprocessing import normalize
 import csv
 
 def run_gen_dnabert(fasta_file, args):
-    outfile = os.path.join(os.path.dirname(fasta_file), 'dnabert2_embeddings.csv')
+    outfile = os.path.join(os.path.dirname(fasta_file), f'{args.model_name}_embeddings.csv')
     if args.llm_model_path is None:
         if args.model_name == 'dnabert2':
             model_name_or_path = "zhihan1996/DNABERT-2-117M"
+        elif args.model_name == 'dnabert-s':
+            model_name_or_path = "zhihan1996/DNABERT-S"
     else:
         model_name_or_path = args.llm_model_path
 

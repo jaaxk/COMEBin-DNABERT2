@@ -35,6 +35,8 @@ def get_kmer_coverage(args, data_path: str, n_views: int = 2, kmer_model_path: s
             com_file = data_path + 'aug' + str(view) + '/kmer_4_f0.csv'
         elif args.model_name=='dnabert2':
             com_file = data_path + 'aug' + str(view) + '/dnabert2_embeddings.csv'
+        elif args.model_name=='dnabert-s':
+            com_file = data_path + 'aug' + str(view) + '/dnabert-s_embeddings.csv'
 
         covHeader = pd.read_csv(cov_file, sep='\t', nrows=1)
         shuffled_covMat = pd.read_csv(cov_file, sep='\t', usecols=range(1, covHeader.shape[1])).values
@@ -48,7 +50,7 @@ def get_kmer_coverage(args, data_path: str, n_views: int = 2, kmer_model_path: s
         covMat = shuffled_covMat[covIdxArr]
 
 
-        if not nokmer or args.model_name=='dnabert2':
+        if not nokmer or args.model_name=='dnabert2' or args.model_name=='dnabert-s':
             compositHeader = pd.read_csv(com_file, sep=',', nrows=1)
             shuffled_compositMat = pd.read_csv(com_file, sep=',', usecols=range(1, compositHeader.shape[1])).values
             shuffled_namelist = pd.read_csv(com_file, sep=',', usecols=range(1)).values[:, 0]
@@ -78,14 +80,14 @@ def get_kmer_coverage(args, data_path: str, n_views: int = 2, kmer_model_path: s
             covMats = covMat
             if addvars:
                 varsMats = varsMat
-            if not nokmer or args.model_name=='dnabert2':
+            if not nokmer or args.model_name=='dnabert2' or args.model_name=='dnabert-s':
                 compositMats = compositMat
 
         else:
             covMats = np.vstack((covMats, covMat))
             if addvars:
                 varsMats = np.vstack((varsMats, varsMat))
-            if not nokmer or args.model_name=='dnabert2':
+            if not nokmer or args.model_name=='dnabert2' or args.model_name=='dnabert-s':
                 compositMats = np.vstack((compositMats, compositMat))
 
     # use cov_maxnormalize
@@ -114,7 +116,7 @@ def get_kmer_coverage(args, data_path: str, n_views: int = 2, kmer_model_path: s
         if addvars:
             varsMats = varsMats / varsMats.max(axis=0)[None, :]
 
-    if not nokmer or args.model_name=='dnabert2':
+    if not nokmer or args.model_name=='dnabert2' or args.model_name=='dnabert-s':
         compositMats = compositMats + 1
         compositMats = compositMats / compositMats.sum(axis=1)[:, None]
         if kmer_l2_normalize:
@@ -122,7 +124,7 @@ def get_kmer_coverage(args, data_path: str, n_views: int = 2, kmer_model_path: s
         if kmer_model_path != 'empty':
             compositMats = get_kmerMetric_emb(kmer_model_path, compositMats, device,kmerMetric_notl2normalize)
 
-    if not nokmer or args.model_name=='dnabert2':
+    if not nokmer or args.model_name=='dnabert2' or args.model_name=='dnabert-s':
         X_ts = np.hstack((covMats, compositMats))
     else:
         X_ts = covMats
