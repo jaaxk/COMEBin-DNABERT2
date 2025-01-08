@@ -223,9 +223,15 @@ class SimCLR(object):
         logging.info(f"Start SimCLR training for {self.args.epochs} epochs.")
         # logging.info(f"Training with cpu: {self.args.disable_cuda}.")
         if self.args.kmer_model_path == 'empty':
-            kmer_len = 136
+            if self.args.model_name == 'TNF':
+                kmer_len = 136
+            elif 'dnabert' in self.args.model_name:
+                kmer_len = 768 #Default embedding size for DNABERT2 and DNABERT-S
+            else:
+                raise Exception(f'Unknown embedding size for model {self.args.model_name}, please add model to code here (simclr.py line 231)')
         else:
             kmer_len = 128
+        print(f'Model: {self.args.model_name}, Embedding Size: {kmer_len}')
         logging.info('kmer_len:\t' + str(kmer_len) + '\n')
 
         for epoch_counter in range(self.args.epochs):
