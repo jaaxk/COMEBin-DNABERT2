@@ -154,6 +154,8 @@ def arguments():
                                               help='num_threads for training in CPU mode.')
     CLtraining_subparsers.add_argument('--model_name', default='dnabert2', type=str,
                                               help='Which model to use for feature embeddings. Options: TNF (original paper), dnabert2 (default), dnabert-virus (in progress)')
+    CLtraining_subparsers.add_argument('--llm_embedding_dim', default=None, type=int,
+                                       help='Embedding dimension for DNABERT. Default 768 for DNABERT, 136 for TNF. This influences the weight that LLM embeddings have vs coverage embeddings.')
 
 
 
@@ -299,6 +301,19 @@ def main():
     if args.subcmd == 'train':
         if args.model_name!='TNF':
             args.nokmer = True
+
+        #Set default embedding dimension for TNF and DNABERT models    
+        if args.llm_embedding_dim is None:
+            if args.model_name == 'TNF':
+                if args.kmer_model_path == 'empty':
+                    args.llm_embedding_dim = 136
+                else:
+                    args.llm_embedding_dim = 128
+            elif 'dnabert' in args.model_name:
+                args.llm_embedding_dim = 768
+            else:
+                raise Exception(f'Cant find embedding size for {args.model_name}. Add it here (main.py line 315)')
+        
         logger.info('train')
         train_CLmodel(logger,args)
 

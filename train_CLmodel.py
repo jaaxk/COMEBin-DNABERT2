@@ -97,7 +97,7 @@ def train_CLmodel(logger, args):
             ps = [cnf['dropout_value']]*(len(cnf['emb_szs'])-1)
             actn= nn.LeakyReLU()
 
-            insize = 136
+            insize = args.llm_embedding_dim
 
             kmerMetric_model = EmbeddingNet(
                 in_sz=insize,
@@ -114,7 +114,7 @@ def train_CLmodel(logger, args):
                 kmerMetric_model.load_state_dict(torch.load(args.pretrain_kmer_model_path, map_location=args.device))
 
             cov_dim = len(dataset[0][0]) - insize
-            input_size = args.out_dim_forcov + 128
+            input_size = args.out_dim_forcov + args.llm_embedding_dim
             print('cov_dim:\t' + str(cov_dim) + '\n')
 
             emb_szs_list = [args.emb_szs_forcov] * args.n_layer_forcov
@@ -179,11 +179,11 @@ def train_CLmodel(logger, args):
 
         else:
             if args.kmer_model_path == 'empty':
-                cov_dim = len(dataset[0][0]) - 136
-                input_size = args.out_dim_forcov + 136
+                cov_dim = len(dataset[0][0]) - args.llm_embedding_dim
+                input_size = args.out_dim_forcov + args.llm_embedding_dim
             else:
-                cov_dim = len(dataset[0][0]) - 128
-                input_size = args.out_dim_forcov + 128
+                cov_dim = len(dataset[0][0]) - args.llm_embedding_dim
+                input_size = args.out_dim_forcov + args.llm_embedding_dim
                 print('cov_dim:\t' + str(cov_dim) + '\n')
 
 
@@ -201,7 +201,7 @@ def train_CLmodel(logger, args):
             if args.pretrain_coveragemodel:
                 print("pretrain_coveragemodel!")
                 print(cov_model.state_dict())
-                print(len(dataset[0][0][128:]))
+                print(len(dataset[0][0][args.llm_embedding_dim:]))
                 optimizer = torch.optim.AdamW(cov_model.parameters(), args.lr, weight_decay=args.weight_decay)
 
                 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.covmodelepochs, eta_min=0,
@@ -210,7 +210,7 @@ def train_CLmodel(logger, args):
                 simclr = SimCLR(model=cov_model, optimizer=optimizer, scheduler=scheduler, args=args)
                 simclr.covmodeltrain(train_loader)
                 print(cov_model.state_dict())
-                print(len(dataset[0][0][128:]))
+                print(len(dataset[0][0][args.llm_embedding_dim:]))
 
             from models.mlp2 import EmbeddingNet as EmbeddingNet2
 
