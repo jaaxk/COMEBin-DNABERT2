@@ -147,9 +147,15 @@ class SimCLR(object):
         earlystop_epoch=0
         logging.info(f"Start SimCLR training for {self.args.epochs} epochs.")
         # logging.info(f"Training with cpu: {self.args.disable_cuda}.")
+        
+        best_acc = 0.0
 
         for epoch_counter in range(self.args.epochs):
             # modified
+            epoch_accuracy = 0.0
+            epoch_loss = 0.0
+            num_batches = 0
+
             for contig_features in tqdm(train_loader):
                 contig_features = torch.cat(contig_features, dim=0)
 
@@ -167,32 +173,45 @@ class SimCLR(object):
                 scaler.step(self.optimizer)
                 scaler.update()
 
-            top1, top5 = accuracy(logits, labels, topk=(1, 5))
+                top1, top5 = accuracy(logits, labels, topk=(1, 5))
+                epoch_accuracy += top1[0] #.item()?
+                epoch_loss += loss #.item()
+                num_batches += 1    
+
+            #top1, top5 = accuracy(logits, labels, topk=(1, 5)) #this line was originally in this loop (mistake?)
+            #Using average epoch loss and accuracy instead
+            avg_accuracy = epoch_accuracy / num_batches
+            avg_loss = epoch_loss / num_batches
+            is_best = avg_accuracy > best_acc
+            if is_best:
+                best_acc = avg_accuracy
+                print(f'Best accuracy: {best_acc} at epoch {epoch_counter}.')
             if not self.args.notuse_scheduler:
                 # warmup for the first 10 epochs
                 if epoch_counter >= 10:
                     self.scheduler.step()
-            logging.debug(f"Epoch: {epoch_counter}\tLoss: {loss}\tTop1 accuracy: {top1[0]}")
-
+            #logging.debug(f"Epoch: {epoch_counter}\tLoss: {loss}\tTop1 accuracy: {top1[0]}") #We should probably use epoch-level accuracy and loss instead:
+            logging.debug(f"Epoch: {epoch_counter}\tLoss: {avg_loss:.4f}\tAccuracy: {avg_accuracy:.2f}")
+            print(f"Epoch: {epoch_counter}\tLoss: {avg_loss:.4f}\tAccuracy: {avg_accuracy:.2f}")
             if self.args.earlystop:
-                if epoch_counter >= 10 and top1[0] > 99.0:
+                if epoch_counter >= 10 and avg_accuracy > 99.0:  #changed top1[0] to avg_accuracy (for epoch-level accuracy)
                     earlystop_epoch +=1
                 else:
                     earlystop_epoch = 0
                 if earlystop_epoch >=3:
                     break
 
+            # save model checkpoints
+            checkpoint_name = 'checkpoint_{:04d}.pth.tar'.format(epoch_counter)
+            save_checkpoint({
+                'epoch': epoch_counter,
+                # 'arch': self.args.arch,
+                'state_dict': self.model.state_dict(),
+                'optimizer': self.optimizer.state_dict(),
+            }, is_best=is_best, filename=os.path.join(self.args.output_path, checkpoint_name))
+            logging.info(f"Model checkpoint and metadata has been saved at {self.args.output_path}.")
 
         logging.info("Training has finished.")
-        # save model checkpoints
-        checkpoint_name = 'checkpoint_{:04d}.pth.tar'.format(self.args.epochs)
-        save_checkpoint({
-            'epoch': self.args.epochs,
-            # 'arch': self.args.arch,
-            'state_dict': self.model.state_dict(),
-            'optimizer': self.optimizer.state_dict(),
-        }, is_best=False, filename=os.path.join(self.args.output_path, checkpoint_name))
-        logging.info(f"Model checkpoint and metadata has been saved at {self.args.output_path}.")
 
         # ckpt = torch.load('checkpoint_0200.pth.tar')
         # self.model.load_state_dict(ckpt['state_dict'])
