@@ -39,6 +39,7 @@ n_views=6
 emb_szs_forcov=2048
 emb_szs=2048
 batch_size=1024
+llm_embedding_dim=768
 
 while getopts a:o:p:n:t:l:e:m:c:b:d: OPT; do
  case ${OPT} in
