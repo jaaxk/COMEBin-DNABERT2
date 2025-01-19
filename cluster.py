@@ -398,7 +398,7 @@ def cluster(logger, args, prefix=None):
         logger.info('knn query time cost:\t' +str(time_end - time_start) + "s")
 
 
-        with multiprocessing.Pool(num_workers/2) as multiprocess: #Using half the workers here to allocate more memory to each worker. Necessary for larger datasets (like CAMI2)
+        with multiprocessing.Pool(num_workers // 2) as multiprocess: #Using half the workers here to allocate more memory to each worker. Necessary for larger datasets (like CAMI2)
             for partgraph_ratio in partgraph_ratio_list:
                 for bandwidth in bandwidth_list:
                     for para in parameter_list:
