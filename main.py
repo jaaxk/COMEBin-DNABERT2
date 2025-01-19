@@ -304,6 +304,7 @@ def main():
 
         #Set default embedding dimension for TNF and DNABERT models    
         if args.llm_embedding_dim is None:
+            args.use_pca = False
             if args.model_name == 'TNF':
                 if args.kmer_model_path == 'empty':
                     args.llm_embedding_dim = 136
@@ -313,6 +314,8 @@ def main():
                 args.llm_embedding_dim = 768
             else:
                 raise Exception(f'Cant find embedding size for {args.model_name}. Add it here (main.py line 315)')
+        else:
+            args.use_pca = True
         
         logger.info('train')
         train_CLmodel(logger,args)
