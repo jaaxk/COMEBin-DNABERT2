@@ -207,7 +207,7 @@ def arguments():
                                               help='Which model to use for feature embeddings. Options: TNF (original paper), dnabert2 (default), dnabert-s')
     generate_aug_data_subparsers.add_argument('--llm_model_path', default=None, type=str,
                                               help='Path to specific pretrained model. Default downloads model_name from HuggingFace')
-    generate_aug_data_subparsers.add_argument('--model_max_length', default=400, type=int, help='Max tokens for input to llm')
+    generate_aug_data_subparsers.add_argument('--model_max_length', default=1000, type=int, help='Max tokens for input to llm')
     generate_aug_data_subparsers.add_argument('--llm_batch_size', default=20, type=int, help='Batch size for LLM. Will be multiplied by number of GPUs available')
 
     #############################################################################################

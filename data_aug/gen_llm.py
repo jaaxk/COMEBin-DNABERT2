@@ -24,7 +24,7 @@ def run_gen_dnabert(fasta_file, args):
 
     model = AutoModel.from_pretrained(model_name_or_path, trust_remote_code=True)
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path,
-                                                    model_max_length = args.model_max_length,
+                                                    model_max_length = args.model_max_length, #default 1000 (double check)
                                                     padding_side = 'right',
                                                     use_fast = True, #Look into this
                                                     trust_remote_code=True)
@@ -78,7 +78,7 @@ def run_gen_dnabert(fasta_file, args):
             model_output = model.forward(input_ids=input_ids, attention_mask=attention_mask)[0].detach().cpu()
             attention_mask = attention_mask.unsqueeze(-1).detach().cpu()
             embedding = torch.sum(model_output*attention_mask, dim=1) / torch.sum(attention_mask, dim=1) #gets mean pooling embeddings across all token embeddings of each sequence
-
+            #average every 3 dimensions to reduce dimensions -- use pytorch's average pool
 
             if j==0:
                 embeddings = embedding
