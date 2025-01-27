@@ -161,7 +161,6 @@ if [ -d "$folder" ]; then
         --batch_size ${batch_size} --emb_szs ${emb_szs} --n_views ${n_views} \
         --model_name ${model_name} \
         --add_model_for_coverage \
-        --llm_embedding_dim ${llm_embedding_dim} \
         --out_dim_forcov 768 \
         --output_path ${output_dir}/comebin_res --earlystop --addvars --vars_sqrt --num_threads ${num_threads} 
         
@@ -176,7 +175,6 @@ else
     --batch_size ${batch_size} --emb_szs ${emb_szs} --n_views ${n_views} \
     --model_name ${model_name} \
     --add_model_for_coverage \
-    --llm_embedding_dim ${llm_embedding_dim} \
     --out_dim_forcov 768 \
     --output_path ${output_dir}/comebin_res --earlystop --addvars --vars_sqrt --num_threads ${num_threads}
 fi
