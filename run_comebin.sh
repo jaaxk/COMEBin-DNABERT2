@@ -162,6 +162,7 @@ if [ -d "$folder" ]; then
         --model_name ${model_name} \
         --add_model_for_coverage \
         --llm_embedding_dim ${llm_embedding_dim} \
+        --out_dim_forcov 768 \
         --output_path ${output_dir}/comebin_res --earlystop --addvars --vars_sqrt --num_threads ${num_threads} 
         
     else
@@ -176,6 +177,7 @@ else
     --model_name ${model_name} \
     --add_model_for_coverage \
     --llm_embedding_dim ${llm_embedding_dim} \
+    --out_dim_forcov 768 \
     --output_path ${output_dir}/comebin_res --earlystop --addvars --vars_sqrt --num_threads ${num_threads}
 fi
 
