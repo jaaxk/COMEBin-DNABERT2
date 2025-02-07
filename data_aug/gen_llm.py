@@ -85,7 +85,7 @@ def run_gen_dnabert(fasta_file, args):
             
             # Sum and normalize
             seq_embeddings = token_embeddings.sum(dim=1) / mask.sum(dim=1).clamp(min=1e-9)
-            embeddings.append(seq_embeddings.cpu())
+            embeddings.append(seq_embeddings.detach().cpu())
 
     # Concatenate all embeddings
     embeddings = torch.cat(embeddings, dim=0)
