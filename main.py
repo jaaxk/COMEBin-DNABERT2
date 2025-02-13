@@ -154,7 +154,7 @@ def arguments():
                                               help='num_threads for training in CPU mode.')
     CLtraining_subparsers.add_argument('--model_name', default='dnabert2', type=str,
                                               help='Which model to use for feature embeddings. Options: TNF (original paper), dnabert2 (default), dnabert-virus (in progress)')
-    CLtraining_subparsers.add_argument('--llm_embedding_dim', default=None, type=int,
+    CLtraining_subparsers.add_argument('--llm_embedding_dim', default=None,
                                        help='Embedding dimension for DNABERT. Default 768 for DNABERT, 136 for TNF. This influences the weight that LLM embeddings have vs coverage embeddings.')
 
 
@@ -302,9 +302,11 @@ def main():
         if args.model_name!='TNF':
             args.nokmer = True
 
-        #Set default embedding dimension for TNF and DNABERT models    
+        #Set default embedding dimension for TNF and DNABERT models 
+        if 'None' in args.llm_embedding_dim:
+            args.llm_embedding_dim = None
         if args.llm_embedding_dim is None:
-            args.use_pca = False
+            args.use_dimred = False
             if args.model_name == 'TNF':
                 if args.kmer_model_path == 'empty':
                     args.llm_embedding_dim = 136
@@ -315,7 +317,11 @@ def main():
             else:
                 raise Exception(f'Cant find embedding size for {args.model_name}. Add it here (main.py line 315)')
         else:
-            args.use_pca = True
+            args.use_dimred = True
+            args.llm_embedding_dim = int(args.llm_embedding_dim)
+            print(f'args.llm_embedding_dim = {args.llm_embedding_dim}')
+            if 768 % args.llm_embedding_dim != 0:
+                raise Exception('llm embedding dimension must be divisible by 768, exiting...')
         
         logger.info('train')
         train_CLmodel(logger,args)

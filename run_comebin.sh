@@ -39,7 +39,7 @@ n_views=6
 emb_szs_forcov=2048
 emb_szs=2048
 batch_size=1024
-llm_embedding_dim=768
+llm_embedding_dim="None"
 
 while getopts a:o:p:n:t:l:e:m:c:b:d: OPT; do
  case ${OPT} in
@@ -161,6 +161,7 @@ if [ -d "$folder" ]; then
         --batch_size ${batch_size} --emb_szs ${emb_szs} --n_views ${n_views} \
         --model_name ${model_name} \
         --add_model_for_coverage \
+        --llm_embedding_dim ${llm_embedding_dim} \
         --output_path ${output_dir}/comebin_res --earlystop --addvars --vars_sqrt --num_threads ${num_threads} 
         
     else
@@ -174,6 +175,7 @@ else
     --batch_size ${batch_size} --emb_szs ${emb_szs} --n_views ${n_views} \
     --model_name ${model_name} \
     --add_model_for_coverage \
+    --llm_embedding_dim ${llm_embedding_dim} \
     --output_path ${output_dir}/comebin_res --earlystop --addvars --vars_sqrt --num_threads ${num_threads}
 fi
 

@@ -126,16 +126,12 @@ def get_kmer_coverage(args, data_path: str, n_views: int = 2, kmer_model_path: s
 
     if not nokmer or args.model_name=='dnabert2' or args.model_name=='dnabert-s':
 
-        if args.use_pca:
+        if args.use_dimred:
             #reduce dimensions of DNABERT embeddings
-            from sklearn.decomposition import PCA
-            import time
-            pca = PCA(n_components=args.llm_embedding_dim)
-            start_time = time.time()
-            print(f'Running PCA dimensionality reduction to {args.llm_embedding_dim} dimensions')
-            end_time = time.time()
-            compositMats = pca.fit_transform(compositMats)
-            print(f'Finished PCA in {(end_time - start_time)/60} minutes')
+            num_embeddings, original_dim = compositMats.shape
+            print(f'num_embeddings = {num_embeddings}, original_dim = {original_dim}, target_dim = {args.llm_embedding_dim}')
+            group_size = original_dim // args.llm_embedding_dim
+            compositMats = compositMats.view(num_embeddings, args.llm_embedding_dim, group_size).mean(dim=2)
 
         X_ts = np.hstack((covMats, compositMats))
     else:
