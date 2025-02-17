@@ -23,6 +23,8 @@ class EmbeddingNet(nn.Module):
         layers.append(nn.Linear(emb_szs[-1], self.out_sz))
         self.fc = nn.Sequential(*layers)
 
+        
+
     def bn_drop_lin(
             self,
             n_in: int,

@@ -266,8 +266,10 @@ class SimCLR(object):
                             features, covemb, kmeremb = self.model(contig_features[:, -kmer_len:], contig_features[:, :-kmer_len])
                             # print(contig_features[:2, :-kmer_len])
                         else:
-                            features, covemb = self.model(contig_features[:, -kmer_len:], contig_features[:, :-kmer_len])
+                            features, covemb = self.model(contig_features[:, -kmer_len:], contig_features[:, :-kmer_len]) #passing features (last embedding_dim rows) as x and coverage (first total-embedding_dim rows) as x2
                             # print(contig_features[:2, :-kmer_len])
+                        #print(f'[DEBUG] llm_embedding[0]: {contig_features[0, -kmer_len:]}')
+                        #print(f'[DEBUG] coverage embedding[0]: {contig_features[0, :-kmer_len]}')
 
                         logits, labels = self.info_nce_loss(features)
                         loss1 = self.criterion(logits, labels)

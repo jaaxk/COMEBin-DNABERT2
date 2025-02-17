@@ -6,7 +6,7 @@ import torch.nn.functional as F
 class EmbeddingNet(nn.Module):
     # Useful code from fast.ai tabular model
     # https://github.com/fastai/fastai/blob/3b7c453cfa3845c6ffc496dd4043c07f3919270e/fastai/tabular/models.py#L6
-    def __init__(self, in_sz, out_sz, emb_szs, ps, use_bn=True, actn=nn.ReLU(), pretrained_model=None, cov_model=None, covmodel_notl2normalize=False):
+    def __init__(self, in_sz, out_sz, emb_szs, ps, use_bn=True, actn=nn.ReLU(), pretrained_model=None, cov_model=None, covmodel_notl2normalize=False, llm_embedding_dim=None):
         super(EmbeddingNet, self).__init__()
         self.pretrained_model = pretrained_model
         self.cov_model = cov_model
@@ -14,6 +14,17 @@ class EmbeddingNet(nn.Module):
         self.out_sz = out_sz
         self.n_embs = len(emb_szs) - 1
         self.covmodel_notl2normalize = covmodel_notl2normalize
+        self.llm_embedding_dim = llm_embedding_dim
+        self.firstrun = True #DELETE THIS
+
+        if self.llm_embedding_dim is not None:
+            self.proj_embedding = nn.Linear(self.llm_embedding_dim, in_sz)
+            print(f'Initiallizing embedding projection head with llm_embedding_dim = {self.llm_embedding_dim}')
+        else:
+            print('WARNING: Not initializing llm projection head')
+            self.proj_embedding = None
+        self.alpha = nn.Parameter(torch.tensor(0.5))  # Learnable weight for llm : coverage embeddings
+
         if ps == 0:
             ps = np.zeros(self.n_embs)
         # input layer
@@ -48,7 +59,7 @@ class EmbeddingNet(nn.Module):
             layers.append(actn)
         return layers
 
-    def forward(self, x, x2=None):
+    def forward(self, x, x2=None): #x is llm embeddings, x2 is coverage
         if self.pretrained_model is not None and self.cov_model is None:
             kmeremb = self.pretrained_model(x)
             x = torch.cat([F.normalize(self.pretrained_model(x)), x2], dim=-1)
@@ -59,11 +70,23 @@ class EmbeddingNet(nn.Module):
             else:
                 x = torch.cat([F.normalize(self.pretrained_model(x)), F.normalize(self.cov_model(x2))], dim=-1)
 
-        if self.pretrained_model is None and self.cov_model is not None:
-            if self.covmodel_notl2normalize:
-                x = torch.cat([x, self.cov_model(x2)], dim=-1)
+        if self.pretrained_model is None and self.cov_model is not None: #This is the path usually taken
+            if self.firstrun: #DELETE THIS
+                print('CORRECT PATH')
+                self.firstrun = False
+            x_emb = self.proj_embedding(x) #Scale x down from llm_embedding_dim (768) to outdim_forcov (default 768)
+            x2_emb = self.cov_model(x2) #Scale x2 (coverage features) up from cov_dim (~136) to outdim_forcov (dedault 768)
+            #Combine embeddings with learnable parameter alpha:
+            x = F.normalize((self.alpha * x_emb) + ((1 - self.alpha) * x2_emb))
+
+            del x_emb
+            del x2_emb
+            torch.cuda.empty_cache()
+
+            """ if self.covmodel_notl2normalize:
+                x = torch.cat([x, self.cov_model(x2)], dim=-1) #should be size [rows x (llm_dim + outdim_forcov)]
             else:
-                x = torch.cat([x, F.normalize(self.cov_model(x2))], dim=-1)
+                x = torch.cat([x, F.normalize(self.cov_model(x2))], dim=-1) """
 
         output = self.fc(x)
 

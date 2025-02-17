@@ -114,7 +114,7 @@ def train_CLmodel(logger, args):
                 kmerMetric_model.load_state_dict(torch.load(args.pretrain_kmer_model_path, map_location=args.device))
 
             cov_dim = len(dataset[0][0]) - insize
-            input_size = args.out_dim_forcov + args.llm_embedding_dim
+            input_size = args.out_dim_forcov
             print('cov_dim:\t' + str(cov_dim) + '\n')
 
             emb_szs_list = [args.emb_szs_forcov] * args.n_layer_forcov
@@ -180,10 +180,10 @@ def train_CLmodel(logger, args):
         else:
             if args.kmer_model_path == 'empty':
                 cov_dim = len(dataset[0][0]) - args.llm_embedding_dim
-                input_size = args.out_dim_forcov + args.llm_embedding_dim
+                input_size = args.out_dim_forcov
             else:
                 cov_dim = len(dataset[0][0]) - args.llm_embedding_dim
-                input_size = args.out_dim_forcov + args.llm_embedding_dim
+                input_size = args.out_dim_forcov
                 print('cov_dim:\t' + str(cov_dim) + '\n')
 
 
@@ -216,7 +216,7 @@ def train_CLmodel(logger, args):
 
 
             emb_szs_list = [args.emb_szs] * args.n_layer
-
+            print('[DEBUG] Checking that we are taking this path.')
             model = EmbeddingNet2(
                 in_sz=input_size,
                 out_sz=args.out_dim,
@@ -226,6 +226,7 @@ def train_CLmodel(logger, args):
                 actn=nn.LeakyReLU(),
                 cov_model=cov_model,
                 covmodel_notl2normalize=args.covmodel_notl2normalize,
+                llm_embedding_dim=args.llm_embedding_dim
             )
             optimizer = torch.optim.AdamW(model.parameters(), args.lr, weight_decay=args.weight_decay)
 

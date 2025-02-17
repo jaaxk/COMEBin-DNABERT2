@@ -41,7 +41,7 @@ emb_szs=2048
 batch_size=1024
 llm_embedding_dim="None"
 
-while getopts a:o:p:n:t:l:e:m:c:b:d: OPT; do
+while getopts a:o:p:n:t:l:e:m:c:b: OPT; do
  case ${OPT} in
   a) contig_file=$(realpath ${OPTARG})
     ;;
@@ -62,8 +62,6 @@ while getopts a:o:p:n:t:l:e:m:c:b:d: OPT; do
   c) emb_szs_forcov=${OPTARG}
     ;;
   b) batch_size=${OPTARG}
-    ;;
-  d) llm_embedding_dim=${OPTARG}
     ;;
   \?)
 #    printf "[Usage] `date '+%F %T'` -i <INPUT_FILE> -o <OUTPUT_DIR> -o <P
@@ -161,7 +159,6 @@ if [ -d "$folder" ]; then
         --batch_size ${batch_size} --emb_szs ${emb_szs} --n_views ${n_views} \
         --model_name ${model_name} \
         --add_model_for_coverage \
-        --llm_embedding_dim ${llm_embedding_dim} \
         --output_path ${output_dir}/comebin_res --earlystop --addvars --vars_sqrt --num_threads ${num_threads} 
         
     else
@@ -175,7 +172,6 @@ else
     --batch_size ${batch_size} --emb_szs ${emb_szs} --n_views ${n_views} \
     --model_name ${model_name} \
     --add_model_for_coverage \
-    --llm_embedding_dim ${llm_embedding_dim} \
     --output_path ${output_dir}/comebin_res --earlystop --addvars --vars_sqrt --num_threads ${num_threads}
 fi
 

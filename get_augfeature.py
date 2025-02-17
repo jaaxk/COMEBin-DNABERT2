@@ -126,13 +126,16 @@ def get_kmer_coverage(args, data_path: str, n_views: int = 2, kmer_model_path: s
 
     if not nokmer or args.model_name=='dnabert2' or args.model_name=='dnabert-s':
 
-        if args.use_dimred:
+        """ if args.use_dimred:
             #reduce dimensions of DNABERT embeddings
             num_embeddings, original_dim = compositMats.shape
             print(f'num_embeddings = {num_embeddings}, original_dim = {original_dim}, target_dim = {args.llm_embedding_dim}')
             group_size = original_dim // args.llm_embedding_dim
-            compositMats = compositMats.view(num_embeddings, args.llm_embedding_dim, group_size).mean(dim=2)
-
+            compositMats = compositMats.reshape((num_embeddings, args.llm_embedding_dim, group_size)).mean(2)
+            #OR use linear projection or neural net here
+ """
+        #print(f'[DEBUG] covMats[0]: {covMats[0]}')
+        #print(f'[DEBUG] compositMats[0]: {compositMats[0]}')
         X_ts = np.hstack((covMats, compositMats))
     else:
         X_ts = covMats

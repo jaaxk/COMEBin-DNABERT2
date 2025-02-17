@@ -81,7 +81,7 @@ def arguments():
 
     CLtraining_subparsers.add_argument('--emb_szs_forcov', default=2048, type=int,
                         help='embedding size for hidden layer (default: 2048)')
-    CLtraining_subparsers.add_argument('--out_dim_forcov', default=128, type=int,
+    CLtraining_subparsers.add_argument('--out_dim_forcov', default=768, type=int,
                         help='embedding size for hidden layer (default: 128)')
     CLtraining_subparsers.add_argument('--n_layer_forcov', default=3, type=int,
                         help='n_layer_forcov (default: 3)')
@@ -303,25 +303,17 @@ def main():
             args.nokmer = True
 
         #Set default embedding dimension for TNF and DNABERT models 
-        if 'None' in args.llm_embedding_dim:
-            args.llm_embedding_dim = None
-        if args.llm_embedding_dim is None:
-            args.use_dimred = False
-            if args.model_name == 'TNF':
-                if args.kmer_model_path == 'empty':
-                    args.llm_embedding_dim = 136
-                else:
-                    args.llm_embedding_dim = 128
-            elif 'dnabert' in args.model_name:
-                args.llm_embedding_dim = 768
+        if 'dnabert' in args.model_name:
+            args.llm_embedding_dim = 768
+        elif args.model_name == 'TNF':
+            if args.kmer_model_path == 'empty':
+                args.llm_embedding_dim = 136
             else:
-                raise Exception(f'Cant find embedding size for {args.model_name}. Add it here (main.py line 315)')
+                args.llm_embedding_dim = 128
         else:
-            args.use_dimred = True
-            args.llm_embedding_dim = int(args.llm_embedding_dim)
-            print(f'args.llm_embedding_dim = {args.llm_embedding_dim}')
-            if 768 % args.llm_embedding_dim != 0:
-                raise Exception('llm embedding dimension must be divisible by 768, exiting...')
+            raise Exception(f'Cant find embedding size for {args.model_name}. Add it here (main.py line 315)')
+
+        print(f'args.llm_embedding_dim = {args.llm_embedding_dim}, out_dim_forcov = {args.out_dim_forcov}')
         
         logger.info('train')
         train_CLmodel(logger,args)
