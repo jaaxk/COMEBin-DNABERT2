@@ -7,7 +7,7 @@ import torch.nn.functional as F
 from torch.cuda.amp import GradScaler, autocast
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
-from utils import save_config_file, accuracy, save_checkpoint
+from utils import save_config_file, accuracy, save_checkpoint, load_checkpoint
 import pandas as pd
 import numpy as np
 
@@ -247,7 +247,23 @@ class SimCLR(object):
         print(f'Model: {self.args.model_name}, Embedding Size: {kmer_len}')
         logging.info('kmer_len:\t' + str(kmer_len) + '\n')
 
+        checkpoint = load_checkpoint(self.args)
+        if checkpoint is not None:
+            resume_epoch = checkpoint['epoch']
+            model_state_dict = checkpoint['state_dict']
+            optimizer_state_dict = checkpoint['optimizer']
+
+            self.model.load_state_dict(model_state_dict)
+            self.optimizer.load_state_dict(optimizer_state_dict)
+        else:
+            resume_epoch = 0
+        
+        skipped = 0
         for epoch_counter in range(self.args.epochs):
+            if resume_epoch > skipped:
+                skipped+=1
+                continue
+
             if epoch_counter == 0:
                 epoch_loss1 = 0
                 epoch_loss2 = 0
@@ -345,6 +361,14 @@ class SimCLR(object):
             if self.args.addkmerloss:
                 if epoch_counter == 0:
                     logging.debug(f"Epoch: {epoch_counter}\tkmer model loss: {loss3}")
+
+            save_checkpoint({
+                'epoch': epoch_counter,
+                # 'arch': self.args.arch,
+                'state_dict': self.model.state_dict(),
+                'optimizer': self.optimizer.state_dict(),
+                }, is_best=False, filename=os.path.join(self.args.output_path, 'checkpoint.pt'))
+            
         logging.info("Training has finished.")
         # save model checkpoints
         checkpoint_name = 'checkpoint_{:04d}.pth.tar'.format(self.args.epochs)

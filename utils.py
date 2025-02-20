@@ -15,6 +15,16 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     if is_best:
         shutil.copyfile(filename, 'model_best.pth.tar')
 
+def load_checkpoint(args):
+    checkpoint_path = os.path.join(args.output_path, 'checkpoint.pt')
+    if os.path.exists(checkpoint_path):
+        print(f'***Loading from checkpoint {checkpoint_path}')
+        return torch.load(checkpoint_path, map_location='cpu', weights_only=False)
+    
+    else:
+        print('***No checkpoint to load from')
+        return None
+
 
 def save_config_file(model_checkpoints_folder, args):
     if not os.path.exists(model_checkpoints_folder):
