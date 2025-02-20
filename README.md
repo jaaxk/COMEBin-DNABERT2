@@ -1,4 +1,4 @@
-# COMEBERT - Utilizing [DNABERT](https://arxiv.org/abs/2402.08777) embeddings into the [COMEBin](https://github.com/ziyewang/COMEBin) metagenomics binning pipeline
+# COMEBERT - Incorporating [DNABERT](https://arxiv.org/abs/2402.08777) embeddings into the [COMEBin](https://github.com/ziyewang/COMEBin) metagenomics binning pipeline
 
 ## How it works - Multiview contrastive learning
 
