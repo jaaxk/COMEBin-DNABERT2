@@ -19,7 +19,7 @@ def load_checkpoint(args):
     checkpoint_path = os.path.join(args.output_path, 'checkpoint.pt')
     if os.path.exists(checkpoint_path):
         print(f'***Loading from checkpoint {checkpoint_path}')
-        return torch.load(checkpoint_path, map_location='cpu', weights_only=False)
+        return torch.load(checkpoint_path, map_location='cpu')
     
     else:
         print('***No checkpoint to load from')
